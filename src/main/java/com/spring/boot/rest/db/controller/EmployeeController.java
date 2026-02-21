@@ -33,7 +33,7 @@ public class EmployeeController {
 	public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
 
 		List<EmployeeDto> empList = empService.getAllEmployeesService();
-
+		
 		return ResponseEntity.ok(empList);
 	}
 	

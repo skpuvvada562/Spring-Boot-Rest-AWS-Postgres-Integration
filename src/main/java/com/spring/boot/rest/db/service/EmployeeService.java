@@ -29,7 +29,6 @@ public class EmployeeService {
 	}
 
 	public List<EmployeeDto> getAllEmployeesService() {
-		// TODO Auto-generated method stub
 		return empDao.findAll().stream().map(emp->appConfig.modelMapper().map(emp, EmployeeDto.class)).toList();
 	}
 
