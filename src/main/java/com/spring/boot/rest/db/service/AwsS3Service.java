@@ -2,16 +2,21 @@ package com.spring.boot.rest.db.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.boot.rest.db.config.AwsS3Config;
 
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -58,6 +63,25 @@ public class AwsS3Service {
 	public byte[] downloadFileFromS3(String fileName) {
 		return s3Config.getS3Client().getObjectAsBytes(builder -> builder.bucket(bucketName).key(fileName))
 				.asByteArray();
+	}
+	
+	public HttpHeaders getHeader(String fileName) {
+		GetObjectRequest request = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+		ResponseInputStream<GetObjectResponse> response=s3Config.getS3Client().getObject(request);
+		System.out.println(response.response().contentType());
+		HttpHeaders headers = new HttpHeaders();
+		if("application/pdf".equals(response.response().contentType())) {
+			headers.setContentType(MediaType.APPLICATION_PDF); // or detect dynamically
+		}
+		headers.setContentType(MediaType.APPLICATION_PDF); //this is working for document even above if is failed
+	    headers.setContentDisposition(ContentDisposition
+	            .attachment()
+	            .filename(fileName)
+	            .build());
+	    return headers;
 	}
 	
 }
