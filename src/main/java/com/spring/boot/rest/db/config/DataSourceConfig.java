@@ -22,6 +22,7 @@ public class DataSourceConfig {
     @Bean
     public DataSource dataSource() {
 
+    	 try {
     	Map<String, Object> secret = awsSecretsService.getSecret();
     	System.out.println(secret);
     	String host = secret.get("host").toString();
@@ -35,7 +36,18 @@ public class DataSourceConfig {
         dataSource.setJdbcUrl(jdbcUrl);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
+        dataSource.getConnection().close(); // remove this code if you want to connect to AWS RDS postgres db
 
         return dataSource;
+    	 } catch (Exception e) {
+    		 System.out.println("RDS failed, switching to local DB");
+
+    	        HikariDataSource localDs = new HikariDataSource();
+    	        localDs.setJdbcUrl("jdbc:postgresql://localhost:5432/postgres");
+    	        localDs.setUsername("postgres");
+    	        localDs.setPassword("dbo");
+
+    	        return localDs;
+         }
     }
 }
