@@ -20,21 +20,37 @@ public class EmployeeService {
 	AppConfig appConfig;
 	
 	public EmployeeDto saveEmployeeService(EmployeeDto empDto) {
-		
-		Employee emp = appConfig.modelMapper().map(empDto, Employee.class);
-		EmployeeDto dto = appConfig.modelMapper().map(emp, EmployeeDto.class);
-		
+		Employee emp=new Employee();
+		emp=convertDtoToEntity(empDto,emp);
 		emp=empDao.save(emp);
-		return dto;
+		empDto =convertEntityToDto(emp,empDto);
+		return empDto;
+	}
+
+	private EmployeeDto convertEntityToDto(Employee emp, EmployeeDto empDto) {
+		return empDto = new EmployeeDto(emp.getId(),emp.getName(), emp.getEmail(), emp.getAge(), emp.getSalary());
+	}
+
+	private Employee convertDtoToEntity(EmployeeDto empDto, Employee emp) {
+		emp.setAge(empDto.age());
+		emp.setEmail(empDto.email());
+		emp.setName(empDto.name());
+		emp.setSalary(empDto.salary());
+		return emp;
 	}
 
 	public List<EmployeeDto> getAllEmployeesService() {
-		return empDao.findAll().stream().map(emp->appConfig.modelMapper().map(emp, EmployeeDto.class)).toList();
+		return empDao.findAll()
+					 .stream()
+					 .map(emp->new EmployeeDto(emp.getId(),emp.getName(), emp.getEmail(), emp.getAge(), emp.getSalary()))
+					 .toList();
 	}
 
 	public EmployeeDto getEmployeeByIdService(int id) {
 		// TODO Auto-generated method stub
-		return empDao.findById(id).map(emp->appConfig.modelMapper().map(emp, EmployeeDto.class)).orElse(null);
+		return empDao.findById(id)
+					 .map(emp->new EmployeeDto(emp.getId(),emp.getName(), emp.getEmail(), emp.getAge(), emp.getSalary()))
+					 .orElse(null);
 	}
 
 }
