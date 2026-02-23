@@ -23,12 +23,12 @@ public class EmployeeService {
 		Employee emp=new Employee();
 		emp=convertDtoToEntity(empDto,emp);
 		emp=empDao.save(emp);
-		empDto =convertEntityToDto(emp,empDto);
+		empDto =convertEntityToDto(emp);
 		return empDto;
 	}
 
-	private EmployeeDto convertEntityToDto(Employee emp, EmployeeDto empDto) {
-		return empDto = new EmployeeDto(emp.getId(),emp.getName(), emp.getEmail(), emp.getAge(), emp.getSalary());
+	private EmployeeDto convertEntityToDto(Employee emp) {
+		return new EmployeeDto(emp.getId(),emp.getName(), emp.getEmail(), emp.getAge(), emp.getSalary());
 	}
 
 	private Employee convertDtoToEntity(EmployeeDto empDto, Employee emp) {
