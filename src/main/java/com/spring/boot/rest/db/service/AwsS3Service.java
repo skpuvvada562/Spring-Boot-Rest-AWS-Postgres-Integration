@@ -13,13 +13,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.spring.boot.rest.db.config.AwsS3Config;
 
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @Service
 public class AwsS3Service {
@@ -82,6 +85,25 @@ public class AwsS3Service {
 	            .filename(fileName)
 	            .build());
 	    return headers;
+	}
+
+	public String uploadDocument(String key, MultipartFile file) throws S3Exception, AwsServiceException, SdkClientException, IOException {
+
+
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(file.getContentType())
+                .build();
+
+        s3Config.getS3Client().putObject(
+                putObjectRequest,
+                RequestBody.fromBytes(file.getBytes())
+        );
+
+        return key;
+    
 	}
 	
 }

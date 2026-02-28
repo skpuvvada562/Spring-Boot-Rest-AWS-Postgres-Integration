@@ -2,6 +2,7 @@ package com.spring.boot.rest.db.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.spring.boot.rest.db.pojo.EmployeeDto;
 import com.spring.boot.rest.db.service.AwsS3Service;
 import com.spring.boot.rest.db.service.EmployeeService;
+
+import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 @RestController
 @RequestMapping("/employee")
@@ -63,6 +68,20 @@ public class EmployeeController {
 
 		String fileName = s3Service.uploadFile(file);
 		return ResponseEntity.ok("Uploaded successfully: " + fileName);
+	}
+	
+	@PostMapping("/{claimId}/uploadDocument")
+	public ResponseEntity<String> uploadDocument(
+	        @PathVariable String claimId,
+	        @RequestParam MultipartFile file) throws S3Exception, AwsServiceException, SdkClientException, IOException {
+
+	    String uniqueFileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+
+	    String key = "claims/" + claimId + "/" + uniqueFileName;
+
+	    s3Service.uploadDocument( key, file);
+
+	    return ResponseEntity.ok("Uploaded");
 	}
 
 	@GetMapping("/listFiles")
